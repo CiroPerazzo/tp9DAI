@@ -1,325 +1,326 @@
-# API REST - Clon de Instagram (Backend)
+# 📸 Instagram Clone API
 
-Backend desarrollado con Node.js, Express y PostgreSQL para el proyecto de clon de Instagram. Implementa autenticacion JWT, validacion de datos y arquitectura por capas.
+Backend REST desarrollado con Node.js, Express y PostgreSQL que simula las funcionalidades básicas de una red social estilo Instagram.
 
-## Arquitectura por capas
+## 🚀 Características
 
+- Registro de usuarios
+- Inicio de sesión con JWT
+- Gestión de perfil de usuario
+- Creación de publicaciones
+- Feed global de publicaciones
+- Validación de datos con Joi
+- Contraseñas cifradas con Bcrypt
+- Arquitectura por capas
+- PostgreSQL como base de datos
+
+---
+
+# 🛠 Tecnologías utilizadas
+
+- Node.js
+- Express
+- PostgreSQL
+- JWT (JSON Web Tokens)
+- Bcrypt
+- Joi
+- Dotenv
+- CORS
+
+---
+
+# 📂 Estructura del proyecto
+
+```text
+src/
+│
+├── config/
+│   └── db.js
+│
+├── controllers/
+│   ├── auth.controller.js
+│   ├── publicacion.controller.js
+│   └── user.controller.js
+│
+├── middlewares/
+│   ├── authMiddleware.js
+│   ├── schemas.js
+│   └── validate.js
+│
+├── routes/
+│   ├── auth.routes.js
+│   ├── publicacion.routes.js
+│   ├── user.routes.js
+│   └── index.js
+│
+├── services/
+│   ├── auth.service.js
+│   ├── publicacion.service.js
+│   └── user.service.js
+│
+└── app.js
+
+database/
+└── schema.sql
 ```
-Cliente (React)
-      |
-      v
-  app.js ---------------> Express, CORS, JSON parser, puerto
-      |
-      v
-  /routes --------------> Define verbos HTTP y endpoints
-      |
-      v
-  /middlewares ---------> authMiddleware (JWT) + validate (Joi)
-      |
-      v
-  /controllers ---------> Extrae req, invoca services, responde HTTP
-      |
-      v
-  /services ------------> Consultas SQL puras (sin req/res)
-      |
-      v
-  /config/db.js --------> Pool de conexion PostgreSQL (pg)
-      |
-      v
-  PostgreSQL
+
+---
+
+# 🏗 Arquitectura
+
+El proyecto sigue una arquitectura por capas:
+
+```text
+Cliente
+   │
+   ▼
+Routes
+   │
+   ▼
+Middlewares
+   │
+   ▼
+Controllers
+   │
+   ▼
+Services
+   │
+   ▼
+PostgreSQL
 ```
 
-### Responsabilidades
+### Responsabilidad de cada capa
 
-| Capa | Responsabilidad |
-|------|-----------------|
-| `config` | Pool de PostgreSQL con credenciales desde `.env` |
-| `routes` | Enrutamiento HTTP y asociacion con middlewares/controladores |
-| `middlewares` | Validacion de JWT y esquemas de datos |
-| `controllers` | Logica de flujo, codigos HTTP y manejo de errores |
-| `services` | Queries SQL directas a la base de datos |
-| `app.js` | Inicializacion del servidor Express |
+| Capa | Función |
+|--------|----------|
+| Routes | Define endpoints y rutas |
+| Middlewares | Autenticación y validación |
+| Controllers | Manejo de requests y responses |
+| Services | Lógica de negocio y consultas SQL |
+| Config | Configuración de PostgreSQL |
+| Database | Persistencia de datos |
 
-## Base de datos
+---
 
-Ejecutar el script `database/schema.sql` en DBeaver, pgAdmin o Supabase.
+# 🗄 Base de datos
 
-### Tabla `usuarios`
+## Tabla usuarios
 
-| Columna | Tipo | Restricciones |
-|---------|------|---------------|
-| id | SERIAL | PRIMARY KEY |
-| nombre_usuario | VARCHAR(50) | UNIQUE, NOT NULL |
-| nombre_completo | VARCHAR(100) | NOT NULL |
-| email | VARCHAR(100) | UNIQUE, NOT NULL |
-| password | VARCHAR(255) | NOT NULL (hash bcrypt) |
-| foto_perfil | VARCHAR(255) | Opcional, default URL |
-| biografia | TEXT | Opcional |
+| Campo | Tipo |
+|---------|---------|
+| id | SERIAL |
+| nombre_usuario | VARCHAR(50) |
+| nombre_completo | VARCHAR(100) |
+| email | VARCHAR(100) |
+| password | VARCHAR(255) |
+| foto_perfil | VARCHAR(255) |
+| biografia | TEXT |
 
-### Tabla `publicaciones`
+## Tabla publicaciones
 
-| Columna | Tipo | Restricciones |
-|---------|------|---------------|
-| id | SERIAL | PRIMARY KEY |
-| usuario_id | INT | FK -> usuarios(id), ON DELETE CASCADE |
-| url_imagen | VARCHAR(255) | NOT NULL |
-| descripcion | TEXT | Opcional |
-| likes | INT | DEFAULT 0 |
-| fecha_creacion | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
+| Campo | Tipo |
+|---------|---------|
+| id | SERIAL |
+| usuario_id | INT |
+| url_imagen | VARCHAR(255) |
+| descripcion | TEXT |
+| likes | INT |
+| fecha_creacion | TIMESTAMP |
 
-**Relacion:** Un usuario tiene muchas publicaciones (One-to-Many).
+Relación:
 
-## Configuracion
+```text
+Usuario 1 ────── N Publicaciones
+```
 
-1. Clonar el repositorio e instalar dependencias:
+---
+
+# ⚙ Instalación
+
+## 1. Clonar repositorio
+
+```bash
+git clone <url-del-repo>
+cd tp9dai
+```
+
+## 2. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-2. Copiar variables de entorno:
+## 3. Configurar variables de entorno
 
-```bash
-cp .env.example .env
+Crear archivo `.env`
+
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=tu_password
+DB_NAME=tp9dai
+
+JWT_SECRET=clave_super_segura
+JWT_EXPIRES_IN=2h
 ```
 
-3. Completar `.env` con las credenciales de PostgreSQL y una clave JWT segura.
+## 4. Crear la base de datos
 
-4. Ejecutar `database/schema.sql` en la base de datos.
+Ejecutar:
 
-5. Iniciar el servidor:
+```sql
+database/schema.sql
+```
+
+en PostgreSQL.
+
+## 5. Iniciar servidor
+
+Modo producción:
 
 ```bash
 npm start
-# o en modo desarrollo:
+```
+
+Modo desarrollo:
+
+```bash
 npm run dev
 ```
 
-## Endpoints
+Servidor disponible en:
 
-Base URL: `http://localhost:3000/api`
-
-### Rutas publicas
-
-#### `POST /auth/register`
-
-Registra un nuevo usuario. La contraseña se cifra con bcrypt antes de guardarse.
-
-**Body:**
-```json
-{
-  "nombre_usuario": "gato_programador",
-  "nombre_completo": "Gato Programador",
-  "email": "gato@example.com",
-  "password": "miPassword123",
-  "foto_perfil": "https://placekitten.com/200/200",
-  "biografia": "Amante de los gatos"
-}
-```
-
-**Respuesta 201:**
-```json
-{
-  "message": "Usuario registrado exitosamente",
-  "usuario": {
-    "id": 1,
-    "nombre_usuario": "gato_programador",
-    "nombre_completo": "Gato Programador",
-    "email": "gato@example.com",
-    "foto_perfil": "https://placekitten.com/200/200",
-    "biografia": "Amante de los gatos"
-  }
-}
+```text
+http://localhost:3000
 ```
 
 ---
 
-#### `POST /auth/login`
+# 🔐 Autenticación
 
-Valida credenciales y devuelve un JWT con expiracion de 2 horas.
+El sistema utiliza JWT.
 
-**Body:**
+Al iniciar sesión se devuelve un token:
+
 ```json
 {
-  "email": "gato@example.com",
-  "password": "miPassword123"
+  "token": "eyJhbGc..."
 }
 ```
 
-**Respuesta 200:**
-```json
-{
-  "message": "Login exitoso",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "usuario": {
-    "id": 1,
-    "nombre_usuario": "gato_programador",
-    "nombre_completo": "Gato Programador",
-    "email": "gato@example.com",
-    "foto_perfil": "https://placekitten.com/200/200",
-    "biografia": "Amante de los gatos"
-  }
-}
+Para acceder a rutas protegidas:
+
+```http
+Authorization: Bearer <token>
 ```
 
 ---
 
-#### `GET /publicaciones`
+# 📡 Endpoints
 
-Devuelve el feed global con datos del autor (JOIN con usuarios).
+Base URL:
 
-**Respuesta 200:**
-```json
-[
-  {
-    "id": 1,
-    "usuario_id": 1,
-    "url_imagen": "https://cataas.com/cat",
-    "descripcion": "Mi gato favorito",
-    "likes": 0,
-    "fecha_creacion": "2026-06-22T12:00:00.000Z",
-    "nombre_usuario": "gato_programador",
-    "foto_perfil": "https://placekitten.com/200/200"
-  }
-]
+```text
+http://localhost:3000/api
 ```
 
 ---
 
-### Rutas protegidas
+## Auth
 
-Requieren header: `Authorization: Bearer <token>`
+### POST /auth/register
 
-#### `GET /usuarios/perfil`
+Registrar usuario.
 
-Retorna el perfil del usuario autenticado (segun el token), con contadores y publicaciones.
+### POST /auth/login
 
-**Respuesta 200:**
-```json
-{
-  "usuario": {
-    "id": 1,
-    "nombre_usuario": "gato_programador",
-    "nombre_completo": "Gato Programador",
-    "email": "gato@example.com",
-    "foto_perfil": "https://placekitten.com/200/200",
-    "biografia": "Amante de los gatos"
-  },
-  "contadores": {
-    "publicaciones": 3,
-    "likes_totales": 15
-  },
-  "publicaciones": [
-    {
-      "id": 1,
-      "url_imagen": "https://cataas.com/cat",
-      "descripcion": "Mi gato favorito",
-      "likes": 5,
-      "fecha_creacion": "2026-06-22T12:00:00.000Z"
-    }
-  ]
-}
-```
+Iniciar sesión.
 
 ---
 
-#### `PUT /usuarios/perfil`
+## Usuarios
 
-Permite editar biografia, nombre completo o foto de perfil del usuario activo.
+### GET /usuarios/perfil
 
-**Body (al menos un campo):**
-```json
-{
-  "nombre_completo": "Gato Dev Senior",
-  "biografia": "Fullstack cat lover",
-  "foto_perfil": "https://placekitten.com/300/300"
-}
-```
+Obtiene el perfil del usuario autenticado.
 
-**Respuesta 200:**
-```json
-{
-  "message": "Perfil actualizado exitosamente",
-  "usuario": {
-    "id": 1,
-    "nombre_usuario": "gato_programador",
-    "nombre_completo": "Gato Dev Senior",
-    "email": "gato@example.com",
-    "foto_perfil": "https://placekitten.com/300/300",
-    "biografia": "Fullstack cat lover"
-  }
-}
-```
+🔒 Requiere token.
+
+### PUT /usuarios/perfil
+
+Actualiza:
+
+- nombre completo
+- foto de perfil
+- biografía
+
+🔒 Requiere token.
 
 ---
 
-#### `POST /publicaciones`
+## Publicaciones
 
-Crea una publicacion asignada automaticamente al usuario del token.
+### GET /publicaciones
 
-**Body:**
-```json
-{
-  "url_imagen": "https://cataas.com/cat/gif",
-  "descripcion": "Gato del dia"
-}
-```
+Obtiene el feed global de publicaciones.
 
-**Respuesta 201:**
-```json
-{
-  "message": "Publicacion creada exitosamente",
-  "publicacion": {
-    "id": 2,
-    "usuario_id": 1,
-    "url_imagen": "https://cataas.com/cat/gif",
-    "descripcion": "Gato del dia",
-    "likes": 0,
-    "fecha_creacion": "2026-06-22T14:00:00.000Z"
-  }
-}
-```
+### POST /publicaciones
 
-## Middleware JWT
+Crea una nueva publicación.
 
-El archivo `src/middlewares/authMiddleware.js` intercepta las rutas protegidas:
+🔒 Requiere token.
 
-1. Lee el header `Authorization`.
-2. Extrae el token con formato `Bearer <token>`.
-3. Verifica firma y expiracion con `jsonwebtoken`.
-4. Si es valido, adjunta `req.user` con el payload decodificado.
-5. Si falta o expiro, responde `401 Unauthorized`.
+---
 
-### Payload del token
+# ✅ Validaciones implementadas
 
-Al hacer login se firma un JWT con:
+## Registro
 
-```json
-{
-  "id": 1,
-  "nombre_usuario": "gato_programador",
-  "email": "gato@example.com"
-}
-```
+- Usuario obligatorio
+- Nombre completo obligatorio
+- Email válido
+- Contraseña mínimo 6 caracteres
 
-**No se incluye la contraseña** ni datos sensibles. La expiracion por defecto es de 2 horas (`JWT_EXPIRES_IN=2h`).
+## Publicaciones
 
-## Checklist de entrega
+- URL de imagen obligatoria
+- Descripción opcional
 
-- [x] Servidor web corriendo con Node.js y Express
-- [x] Base de datos PostgreSQL (script en `database/schema.sql`)
-- [x] Arquitectura separada en `/routes`, `/middlewares`, `/controllers`, `/services`
-- [x] Emision de JWT validos tras login exitoso
-- [x] Middleware de autenticacion protegiendo rutas privadas
-- [x] Endpoint de perfil dinamico segun token
-- [x] Variables de entorno con `.env.example`
+## Perfil
 
-## Dependencias
+- Al menos un campo para actualizar
 
-- `express` - Servidor HTTP
-- `pg` - Cliente PostgreSQL
-- `jsonwebtoken` - Tokens JWT
-- `bcrypt` - Hash de contraseñas
-- `joi` - Validacion de esquemas
-- `cors` - Cross-Origin Resource Sharing
-- `dotenv` - Variables de entorno
+---
+
+# 🔒 Seguridad
+
+- Contraseñas hasheadas con Bcrypt
+- Tokens JWT firmados
+- Middleware de autenticación
+- Validación de datos con Joi
+- Uso de variables de entorno
+
+---
+
+# 📋 Dependencias
+
+| Paquete | Uso |
+|----------|------|
+| express | API REST |
+| pg | PostgreSQL |
+| bcrypt | Hash de contraseñas |
+| jsonwebtoken | JWT |
+| joi | Validaciones |
+| cors | Acceso desde frontend |
+| dotenv | Variables de entorno |
+
+---
+
+# 👨‍💻 Autor
+
+Trabajo práctico desarrollado para la materia Desarrollo de Aplicaciones en Internet (DAI).
+
+Backend de una red social tipo Instagram utilizando Node.js, Express y PostgreSQL.

@@ -10,11 +10,40 @@ const findById = async (id) => {
 };
 
 const getPerfilCompleto = async (userId) => {
-  const usuario = await findById(userId);
+  const { rows } = await pool.query(
+    `SELECT
+       u.id,
+       u.nombre_usuario,
+       u.nombre_completo,
+       u.email,
+       u.foto_perfil,
+       u.biografia,
+       COUNT(p.id)::INT AS publicaciones,
+       COALESCE(SUM(p.likes), 0)::INT AS likes_totales
+     FROM usuarios u
+     LEFT JOIN publicaciones p ON p.usuario_id = u.id
+     WHERE u.id = $1
+     GROUP BY u.id, u.nombre_usuario, u.nombre_completo, u.email, u.foto_perfil, u.biografia`,
+    [userId]
+  );
 
-  if (!usuario) {
+  if (rows.length === 0) {
     return null;
   }
+
+  const row = rows[0];
+  const usuario = {
+    id: row.id,
+    nombre_usuario: row.nombre_usuario,
+    nombre_completo: row.nombre_completo,
+    email: row.email,
+    foto_perfil: row.foto_perfil,
+    biografia: row.biografia,
+  };
+  const contadores = {
+    publicaciones: row.publicaciones,
+    likes_totales: row.likes_totales,
+  };
 
   const { rows: publicaciones } = await pool.query(
     `SELECT id, url_imagen, descripcion, likes, fecha_creacion
@@ -24,18 +53,9 @@ const getPerfilCompleto = async (userId) => {
     [userId]
   );
 
-  const { rows: contadores } = await pool.query(
-    `SELECT
-       COUNT(p.id)::INT AS publicaciones,
-       COALESCE(SUM(p.likes), 0)::INT AS likes_totales
-     FROM publicaciones p
-     WHERE p.usuario_id = $1`,
-    [userId]
-  );
-
   return {
     usuario,
-    contadores: contadores[0],
+    contadores,
     publicaciones,
   };
 };
